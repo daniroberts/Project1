@@ -3,21 +3,46 @@ import filecmp
 from dateutil.relativedelta import *
 from datetime import date
 
+#git commands
+#git add [filename]
+#git commit -m "[message]"
+#git push
 
-def getData(file):
+
+
+def getData(fileName):
 # get a list of dictionary objects from the file
 #Input: file name
 #Ouput: return a list of dictionary objects where
 #the keys are from the first row in the data. and the values are each of the other rows
 
-	pass
+	inFile= open(fileName, "r")
+	lines= inFile.readlines()
+	inFile.close()
+
+	outputdict=[]
+	columntitles = lines[0].strip('\n').split(',')
+	datalines= lines[1:] #everything after line 0
+	for rawline in datalines:
+		line = rawline.strip('\n')
+		current_dict={}
+		datavalues=line.split(',')
+		for i in range(len(columntitles)):
+			current_dict[columntitles[i]]= datavalues[i]
+		outputdict.append(current_dict)
+	return outputdict
+
+
 
 def mySort(data,col):
 # Sort based on key/column
 #Input: list of dictionaries and col (key) to sort on
 #Output: Return the first item in the sorted list as a string of just: firstName lastName
-
-	pass
+	datacopy=data.copy()
+	datacopy.sort(key=lambda x: x[col])
+	firstitem=datacopy[0]
+	outputstring=firstitem['First']+ ' ' + firstitem['Last']
+	return outputstring
 
 
 def classSizes(data):
@@ -27,15 +52,31 @@ def classSizes(data):
 # descending order
 # [('Senior', 26), ('Junior', 25), ('Freshman', 21), ('Sophomore', 18)]
 
-	pass
+	tallydict={'Senior':0, 'Junior':0, 'Freshman':0, 'Sophomore':0}
+	for student in data:
+		tallydict[student['Class']]+=1
+	classtupleslist=[(classkey, tallydict[classkey]) for classkey in tallydict.keys()] #list of tuples
+	classtupleslist.sort(key=lambda x: x[1], reverse=True)
+	return classtupleslist
+	#we need to turn dictionary into tuples list and then sort
+
 
 
 def findMonth(a):
-# Find the most common birth month form this data
-# Input: list of dictionaries
-# Output: Return the month (1-12) that had the most births in the data
+	# Find the most common birth month form this data
+	# Input: list of dictionaries
+	# Output: Return the month (1-12) that had the most births in the data
 
-	pass
+	tallydict={1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0}
+	for student in a:
+		dob= student['DOB']
+		dateparts=dob.split('/')
+		month=int(dateparts[0])
+		tallydict[month]+=1
+	monthtupleslist=[(monthkey, tallydict[monthkey]) for monthkey in tallydict.keys()] #list of tuples
+	monthtupleslist.sort(key=lambda x: x[1], reverse=True)
+	return int(monthtupleslist[0][0])
+
 
 def mySortPrint(a,col,fileName):
 #Similar to mySort, but instead of returning single
@@ -43,8 +84,14 @@ def mySortPrint(a,col,fileName):
 # as fist,last,email
 #Input: list of dictionaries, col (key) to sort by and output file name
 #Output: No return value, but the file is written
+	datacopy=a.copy()
+	datacopy.sort(key=lambda x: x[col])
+	outFile= open(fileName, "w")
+	for student in datacopy:
+		linetowrite=student["First"] + ',' + student["Last"] + ',' + student["Email"] + '\n'
+		outFile.write(linetowrite)
+	outFile.close()
 
-	pass
 
 def findAge(a):
 # def findAge(a):
@@ -53,7 +100,17 @@ def findAge(a):
 # integer.  You will need to work with the DOB and the current date to find the current
 # age in years.
 
-	pass
+	cumulativeage=0
+	numstudents=0
+	for student in a:
+		dobstring= student['DOB']
+		dateparts=dobstring.split('/')
+		born=date(month=int(dateparts[0]), day=int(dateparts[1]), year=int(dateparts[2]))
+		today = date.today()
+		age= today.year - born.year - ((today.month, today.day) < (born.month, born.day)) #age function comes from https://stackoverflow.com/questions/2217488/age-from-birthdate-in-python
+		cumulativeage+=age
+		numstudents+=1
+	return int(round(1.0 * cumulativeage / numstudents))
 
 
 ################################################################

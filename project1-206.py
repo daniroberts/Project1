@@ -66,17 +66,16 @@ def findMonth(a):
 	# Find the most common birth month form this data
 	# Input: list of dictionaries
 	# Output: Return the month (1-12) that had the most births in the data
-
-	tallydict={1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, 11:0, 12:0}
+	bdict={}
 	for student in a:
-		dob= student['DOB']
-		dateparts=dob.split('/')
-		month=int(dateparts[0])
-		tallydict[month]+=1
-	monthtupleslist=[(monthkey, tallydict[monthkey]) for monthkey in tallydict.keys()] #list of tuples
-	monthtupleslist.sort(key=lambda x: x[1], reverse=True)
-	return int(monthtupleslist[0][0])
-
+		dateparts=student["DOB"].split("/")[0]
+		birthstrip= dateparts.strip()
+		if birthstrip not in bdict:
+			bdict[birthstrip]=1
+		else:
+			bdict[birthstrip]+=1
+	sortedmonthlist= sorted(bdict.items(), key=lambda x: x[1], reverse=True)
+	return int((sortedmonthlist[0][0]))
 
 def mySortPrint(a,col,fileName):
 #Similar to mySort, but instead of returning single
